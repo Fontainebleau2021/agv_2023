@@ -1,0 +1,2 @@
+trajectory_info_topic:  trajectory_info
+local_state_topic: local_state

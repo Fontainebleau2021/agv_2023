@@ -1,0 +1,17 @@
+<launch>
+  <node pkg = "navigation" type = "navigation_node" name = "navi" output="screen">
+    <param name = "map_path" value ="$(find navigation)/map/navigation_map.png" />
+    <rosparam file="$(find navigation)/config/navigation/navigation_trans_lio_params.yaml" command="load"/>
+    <rosparam file="$(find navigation)/config/navigation/teb_local_planner_params.yaml" command="load"/>
+  </node>
+
+
+  <include file="$(find bunker_description)/launch/fake_bunker.launch"/>
+  <!--include file="$(find rbx1_bringup)/launch/fake_turtlebot.launch" /-->
+
+
+  <!-- Run a static transform between /odom and /map -->
+  <node pkg="tf" type="static_transform_publisher" name="odom_map_broadcaster" args="0 0 0 0 0 0 /map /odom 20" />
+  
+  <node pkg="rviz" type="rviz" name="rviz1" args="-d $(find navigation)/config/navigation_rviz.rviz" />
+</launch>

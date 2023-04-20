@@ -1,0 +1,11 @@
+<launch>
+
+  <node name="motor" pkg="motor_control" type="motor" output="screen"/>
+  <node name="willtry" pkg="motor_control" type="phoneCommand.py" />
+
+  <node name="ultro" pkg="motor_control" type="stm32_ultro"/>
+  <node name="light" pkg="motor_control" type="lamp"/>
+  <!--include file="$(find ira_laser_tools)/launch/obs_detector.launch"/-->
+
+
+</launch>

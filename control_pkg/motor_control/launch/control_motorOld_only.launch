@@ -1,0 +1,6 @@
+<launch>
+  <!--
+  <node name="phoneCmd" pkg="motor_control" type="phoneCommand.py" />
+  -->
+  <node name="motorOld" pkg="motor_control" type="motorOld"/>
+</launch>

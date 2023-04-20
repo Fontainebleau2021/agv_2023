@@ -1,0 +1,7 @@
+PolygonObstacle *polyobst = new PolygonObstacle;
+        polyobst->pushBackVertex(90 * resolution_x, 160 * resolution_y);
+        polyobst->pushBackVertex(260 * resolution_x, 160 * resolution_y);
+        polyobst->pushBackVertex(260 * resolution_x, 230 * resolution_y);
+        polyobst->pushBackVertex(90 * resolution_x, 230 * resolution_y);
+        polyobst->finalizePolygon();
+        obst_vector_.emplace_back(polyobst);

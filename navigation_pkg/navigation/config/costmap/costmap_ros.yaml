@@ -1,0 +1,9 @@
+costmap: 
+ resolution_x: 0.1
+ resolution_y: 0.1
+ origin_x: -1
+ origin_y: -1
+ inflation_radius: 0.6
+ frame_id: map
+ obstacle_topic: /points
+ 

@@ -1,0 +1,4 @@
+<launch>
+
+  <node name="motor" pkg="motor_control1" type="motor" />
+</launch>

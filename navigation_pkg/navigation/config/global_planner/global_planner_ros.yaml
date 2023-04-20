@@ -1,0 +1,11 @@
+global_planner:
+  target_pose_topic: /move_base_simple/goal
+  cur_pose_topic: /odom
+  global_path_topic: global_path
+  start_x: 0.0
+  start_y: 0.0
+  end_x: 8.0
+  end_y: 8.0
+  enable_astar: true
+  enable_dijkstra: false
+  enable_dstar: true

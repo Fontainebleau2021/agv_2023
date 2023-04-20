@@ -1,0 +1,3 @@
+port_name: /dev/ttyUSB0
+timeout: 1000
+control_rate: 5

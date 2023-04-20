@@ -1,0 +1,35 @@
+target_vel: 0.4
+sample_time: 0.2
+rate: 5
+line_heading: 0
+heading_tolerant: 0.02
+
+left_vel_pid_kp: 4
+left_vel_pid_ki: 0.4
+left_vel_pid_kd: 0.01
+left_vel_inter_max: 6
+left_vel_inter_min: -6
+left_vel_output_max: 0.5
+left_vel_output_min: 0.3
+left_vel_tau: 0.15
+
+right_vel_pid_kp: 8.0
+right_vel_pid_ki: 1.2
+right_vel_pid_kd: 0.4
+right_vel_inter_max: 8
+right_vel_inter_min: -8
+right_vel_output_max: 0.5
+right_vel_output_min: 0.3
+right_vel_tau: 0.1
+
+twist_topic: /turtle1/cmd_vel # /smoother_cmd_vel
+turtle_pose_sub_topic: /turtle1/pose #/Odometry
+slam_pose_sub_topic: /odometry/imu
+gps_pose_sub_topic: /fused_path
+imu_topic: /imu_data
+enable_slam: false
+enable_gps: false
+enable_turtle: true
+enable_position_control: true
+enable_position_distance: 10
+enable_inc: true

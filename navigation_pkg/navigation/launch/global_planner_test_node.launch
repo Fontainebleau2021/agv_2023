@@ -1,0 +1,10 @@
+<launch>
+  <node pkg = "navigation" type = "global_planner_node" name = "global_planner" output="screen">
+    <param name = "map_path" value ="$(find navigation)/map/search_map.png" />
+    <rosparam file="$(find navigation)/config/costmap/costmap_ros.yaml" command="load"/>
+    <rosparam file="$(find navigation)/config/global_planner/global_planner_ros.yaml" command="load"/>
+  </node>
+
+
+  <node pkg="rviz" type="rviz" name="costmap_rviz" args="-d $(find navigation)/config/global_planner_rviz.rviz" />
+</launch>

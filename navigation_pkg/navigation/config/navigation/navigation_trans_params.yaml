@@ -1,0 +1,45 @@
+control_rate: 5
+navigation:
+  vel_topic: /cmd_vel # 发布速度的话题
+  target_pose_topic: /move_base_simple/goal  # 接收导航目标位置的话题名
+  cur_pose_topic: /odom #/lio_sam/mapping/odometry_incremental #/odometry/imu_incremental #/lio_sam/mapping/odometry_incremental # #/odom   # 订阅里程计
+  navi_cmd_topic: /navi_cmd # 接收导航指令的话题名
+  frame_id: map 
+  linecontrol_xy_tolerance: 0.15  # 直线行驶的目标xy精度
+  rotate_theta_tolerance: 0.1  # 目标theta精度
+costmap:  # 代价地图的相关参数  根据地图的分辨率 和原点设置
+  frame_id: map
+  resolution_x: 0.06
+  resolution_y: 0.1
+  origin_x: -19.56
+  origin_y: -2.25
+  inflation_radius: 0.6
+  obstacle_topic: /points
+seed_control: # 播种控制的相关参数
+  target_vel: 0.3  # 直线行驶速度
+  line_heading: 1.57  # 行驶直线的倾角 这个需要根据直线方向修改 详情看Readme
+  heading_tolerant: 0.02 # 在seed_control.cpp UpdateHeading（）中用到，计算直线行驶中当前位置与起始位置连线的倾角和要走的直线倾角 误差容忍值
+  heading_offset: 0.08 # 上面的倾角有误差需要对heading进行更新
+  enable_position_control: true
+  enable_position_distance: 5
+seed_linear_vel_pid:
+  dt: 0.2
+  Kp: 8.0
+  Ki: 1.2
+  Kd: 0.2
+  inter_max: 8
+  inter_min: -8
+  output_max: 0.4
+  output_min: 0
+  tau: 0.1
+seed_omega_pid:
+  dt: 0.2
+  Kp: 2.0
+  Ki: 0.2
+  Kd: 0.02
+  inter_max: 0.5
+  inter_min: -0.5
+  output_max: 0.3
+  output_min: -0.3
+  tau: 0.1
+  

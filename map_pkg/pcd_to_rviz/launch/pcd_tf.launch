@@ -1,0 +1,11 @@
+<launch>
+    <node name="pcd_to_rviz" pkg="pcd_to_rviz" type="pcd_to_rviz" />
+
+    <!--node pkg="tf" type="static_transform_publisher" name="path2map" args="0.0 0.0 0.0 0.0 0.0 0.0 /map /odom 50" / -->
+
+    <node pkg="rviz" type="rviz" name="map_rviz" output="screen" 
+      args="-d $(find pcd_to_rviz)/rviz/defalt.rviz" required="true">
+    </node>
+</launch>
+
+

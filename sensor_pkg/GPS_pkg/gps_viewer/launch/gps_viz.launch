@@ -1,0 +1,12 @@
+<launch>
+
+  <!--- Run NMEA-->
+  <node pkg="nmea_navsat_driver" type="nmea_topic_driver" name="nmea_topic_driver"/>
+
+  <!--- Run GPS_VIEWER-->
+  <node pkg="gps_viewer" type="gps_viewer" name="gps_viewer"/>
+
+  <!--- Run Rviz-->
+  <node pkg="rviz" type="rviz" name="gps_rviz" args="-d $(find gps_viewer)/config/rviz.rviz" />
+
+</launch>

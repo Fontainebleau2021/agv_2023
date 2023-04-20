@@ -1,0 +1,5 @@
+<launch>
+  <node pkg = "navigation" type = "pid_control" name = "pid_control" output="screen">
+    <rosparam file="$(find navigation)/config/pid/pid_params.yaml" command="load"/>
+  </node>
+</launch>

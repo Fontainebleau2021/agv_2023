@@ -1,0 +1,10 @@
+<launch>
+
+    <node name="map_load" pkg="map_server" type="map_server" args="$(find map_load)/map/map.yaml" />
+
+    <!--node pkg="tf" type="static_transform_publisher" name="gps2map" args="131.081 80.781 0.0 -1.470795 0.0 0.0 /map /world 50" /-->
+    <!--node pkg="tf" type="static_transform_publisher" name="gps2map" args="15.271 1.820 0.0 -1.470795 0.0 0.0 /map /world 50" /-->
+
+</launch>
+
+

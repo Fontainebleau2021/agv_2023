@@ -1,0 +1,6 @@
+<launch>
+  <param name = "map_path" value ="$(find navigation)/map/map.png" />
+  <node pkg = "navigation" type = "main" name = "test">
+    <rosparam file="$(find navigation)/config/params.yaml" command="load"/>
+  </node>
+</launch>

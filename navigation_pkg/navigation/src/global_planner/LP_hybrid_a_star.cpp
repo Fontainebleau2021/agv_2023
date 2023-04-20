@@ -1,0 +1,341 @@
+#include "LP_hybrid_star.h"
+
+namespace navigation
+{
+    NodeHDsPtr LPHAstar::CreateNodeFromMap(const Cord &cord)
+    {
+        return CreateNodeFromMap(cord.x, cord.y, cord.theta);
+    }
+
+    NodeHDsPtr LPHAstar::CreateNodeFromMap(const int &x, const int &y, const int &theta)
+    {
+        NodeHDsPtr node = std::make_shared<NodeHDs>(x, y, theta);
+        node_set_[node->NodeHAsTag()] = node;
+        return node;
+    }
+
+    NodeHDsPtr LPHAstar::InNodeSet(const std::string &tag)
+    {
+        if (node_set_.find(tag) == node_set_.end())
+        {
+            return nullptr;
+        }
+        return node_set_[tag];
+    }
+
+    NodeHDsPtr LPHAstar::GetNodeFromMap(const int &x, const int &y, const int &theta)
+    {
+        std::string tag = std::to_string(x) + "_" + std::to_string(y) + "_" + std::to_string(theta);
+        NodeHDsPtr node = InNodeSet(tag);
+        if (node == nullptr)
+        {
+            node = CreateNodeFromMap(x, y, theta);
+        }
+        if (costmap_2d_->GridCost(x, y) == GridType::OBSTACLE)
+        {
+            node->SetOccupy(true);
+        }
+        else
+        {
+            node->SetOccupy(false);
+        }
+        return node;
+    }
+
+    NodeHDsPtr LPHAstar::GetNodeFromMap(const Cord &cord)
+    {
+        return GetNodeFromMap(cord.x, cord.y, cord.theta);
+    }
+
+    NodeHDsPtr LPHAstar::GetNodeFromWorld(const Pose2D &pose)
+    {
+        int x, y, theta;
+        costmap_2d_->WorldToMap(pose.x, pose.y, x, y);
+        double w_t = pose.theta;
+        NormalizeTheta(w_t);
+        theta = static_cast<int>(w_t / phi_resolution_);
+        return GetNodeFromMap(x, y, theta);
+    }
+
+    std::string LPHAstar::CalculateNode3DTag(const Pose2D &pos)
+    {
+        int x, y, theta;
+        costmap_2d_->WorldToMap(pos.x, pos.y, x, y);
+        double w_t = pos.theta;
+        NormalizeTheta(w_t);
+        theta = static_cast<int>(w_t / phi_resolution_);
+        std::string tag = std::to_string(x) + "_" + std::to_string(y) + "_" + std::to_string(theta);
+        return tag;
+    }
+
+    void LPHAstar::NormalizeTheta(double &theta)
+    {
+        while (theta > M_PI)
+        {
+            theta -= 2 * M_PI;
+        }
+        while (theta <= -M_PI)
+        {
+            theta += 2 * M_PI;
+        }
+    }
+
+    void LPHAstar::Init()
+    {
+        NodeHDsPtr start_node = GetNodeFromWorld(start_pose_);
+        start_node->SetrhsCost(0);
+        start_node->SetNodePose(start_pose_);
+        start_node->SetNodeDir(Direction::Forward);
+        open_pq_.push({start_node->NodeHAsTag(), CalculateKey(start_node)});
+        open_set_.insert(start_node->NodeHAsTag());
+        initialized_ = true;
+    }
+
+    void LPHAstar::ResetSearch()
+    {
+        closed_set_.clear();
+        node_set_.clear();
+        decltype(open_pq_) null_pq;
+        open_pq_.swap(null_pq);
+    }
+
+    void LPHAstar::UpdateVertex(NodeHDsPtr &node)
+    {
+
+    }
+
+    bool LPHAstar::Plan()
+    {
+        // ResetSearch();
+        //  printf("11\n");
+        NodeHDsPtr end_node = GetNodeFromWorld(end_pose_);
+        while (!open_pq_.empty())
+        {
+            TagKey cur_tagkey = open_pq_.top();
+            open_pq_.pop();
+            std::string cur_node_tag = cur_tagkey.first;
+            // 在闭集里面，不需要再考虑。
+            if (closed_set_.find(cur_node_tag) != closed_set_.end())
+            {
+                continue;
+            }
+            //得到当前node
+            NodeHDsPtr cur_node = node_set_[cur_node_tag];
+            if (cur_node->Occupy())
+            {
+                std::cout << "not consider occupy" << std::endl;
+                return false;
+            }
+            // std::cout<<"x: "<<cur_node->NodePose().x<<"y: "<<cur_node->NodePose().y<<"theta: "<<cur_node->NodePose().theta<<std::endl;
+            //加入闭集———加入进去的不一定是最优解
+            closed_set_[cur_node_tag] = cur_node;
+            //是终点了，可以退出
+            if (IsArriveTarget(cur_node))
+            {
+                if (end_node->NodeHAsTag() != cur_node->NodeHAsTag())
+                {
+                    end_node->SetParent(cur_node_tag);
+                }
+                return true;
+            }
+            //搜索
+            std::vector<Pose2D> next_poses;
+            GenNextNodes(cur_node, next_poses, Direction::Forward);
+            GenNextNodes(cur_node, next_poses, Direction::Circle);
+            // GenNextNodes(cur_node, next_poses, Direction::Backward);
+            for (int i = 0; i < next_poses.size(); i++)
+            {
+                auto next_pose = next_poses[i];
+                //确保node_set里面的是最新的
+                std::string next_tag = CalculateNode3DTag(next_pose);
+                NodeHDsPtr next_node = GetNodeFromWorld(next_pose);
+                Direction dir = Direction::Forward;
+                double dis_cost = step_dis_;
+                if (i >= next_node_num_)
+                {
+                    dir = Direction::Circle;
+                    dis_cost = std::abs(max_angle_);
+                    if (i >= 2 * next_node_num_)
+                    {
+                        dir = Direction::Backward;
+                        dis_cost = step_dis_;
+                    }
+                }
+                dis_cost += StepCost(cur_node, next_node);
+                double dir_cost = (dir == cur_node->NodeDir() ? 0 : penalty);
+                double next_g = cur_node->GCost() + dir_cost + dis_cost;
+                //如果这个点和现在的点索引一样 那么只有当这个点的启发代价比现在点的启发代价小的时候才会更新
+                if (next_tag == cur_node->NodeHAsTag())
+                {
+                    double cost = next_g + HeuristicCost(next_pose);
+                    if (cost < CalculateKey(cur_node))
+                    {
+                        next_node->SetGCost(next_g);
+                        next_node->SetNodePose(next_pose);
+                        next_node->SetNodeDir(dir);
+                        next_node->SetParent(cur_node->Parent());
+                        open_pq_.push({next_node->NodeHAsTag(), CalculateKey(start_node)});
+                        closed_set_.erase(next_node->NodeHAsTag());
+                    }
+                }
+                else //索引不一样 比较G
+                {
+                    if (next_g < next_node->GCost())
+                    {
+                        next_node->SetGCost(next_g);
+                        next_node->SetNodePose(next_pose);
+                        next_node->SetNodeDir(dir);
+                        next_node->SetParent(cur_node->NodeHAsTag());
+                        open_pq_.push({next_node->NodeHAsTag(), CalculateKey(next_node)});
+                        if (closed_set_.find(next_node->NodeHAsTag()) != closed_set_.end())
+                        {
+                            closed_set_.erase(next_node->NodeHAsTag());
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    bool LPHAstar::Plan(Cord &start, Cord &end)
+    {
+        if (!initialized_)
+        {
+            SetStartGird(start);
+            SetEndGird(end);
+            costmap_2d_->MapToWorld(start.x, start.y, start_pose_.x, start_pose_.y);
+            costmap_2d_->MapToWorld(end.x, end.y, end_pose_.x, end_pose_.y);
+            start_pose_.theta = start.theta * phi_resolution_;
+            end_pose_.theta = end.theta * phi_resolution_;
+            Init();
+        }
+
+        return Plan();
+    }
+
+    bool LPHAstar::Plan(Pose2D &start, Pose2D &end)
+    {
+        if (!initialized_)
+        {
+            start_pose_ = start;
+            end_pose_ = end;
+            Init();
+        }
+        return Plan();
+    }
+
+    double LPHAstar::StepCost(NodeHDsPtr &start_node, NodeHDsPtr &end_node)
+    {
+        if (start_node->Occupy() || end_node->Occupy())
+        {
+            return std::numeric_limits<double>::infinity();
+        }
+        // Cord step = start_node->Cordinate() - end_node->Cordinate();
+        return 0;
+    }
+
+    bool LPHAstar::IsArriveTarget(NodeHDsPtr &node3d)
+    {
+        double delta_x = node3d->NodePose().x - end_pose_.x;
+        double delta_y = node3d->NodePose().y - end_pose_.y;
+        double delta_theta = node3d->NodePose().theta - end_pose_.theta;
+        if (std::hypot(delta_x, delta_y) <= goal_xy_tolerant_ && std::abs(delta_theta) <= goal_theta_tolerant_)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    void LPHAstar::GenNextNodes(NodeHDsPtr &cur_node, std::vector<Pose2D> &next_poses, Direction direction)
+    {
+        double dis = 0.0;
+        switch (direction)
+        {
+        case Direction::Forward:
+            dis = step_dis_;
+            break;
+        case Direction::Backward:
+            dis = -step_dis_;
+            break;
+        case Direction::Circle:
+            dis = 0.0;
+        default:
+            break;
+        }
+        Pose2D new_pose;
+        for (int num = 0; num < next_node_num_; num++)
+        {
+            double angle = -max_angle_ + 2 * max_angle_ * num / (next_node_num_ - 1);
+            VehicleKinematics(cur_node->NodePose(), new_pose, dis, angle);
+            NormalizeTheta(new_pose.theta);
+            next_poses.push_back(new_pose);
+        }
+    }
+
+    void LPHAstar::VehicleKinematics(const Pose2D &pose, Pose2D &new_pose, double dis, double theta)
+    {
+        //机器人坐标系中下一个点的位置
+        double r_x = dis * std::cos(theta), r_y = dis * std::sin(theta);
+        //机器人坐标系与世界坐标系进行旋转变换
+        double d_x = r_x * std::cos(pose.theta) - r_y * std::sin(pose.theta);
+        double d_y = r_x * std::sin(pose.theta) + r_y * std::cos(pose.theta);
+        new_pose.x = pose.x + d_x;
+        new_pose.y = pose.y + d_y;
+        new_pose.theta = pose.theta + theta;
+    }
+
+    void LPHAstar::GeneratePath(std::vector<Pose2D> &path)
+    {
+        NodeHDsPtr cur = GetNodeFromWorld(end_pose_);
+        NodeHDsPtr start = GetNodeFromWorld(start_pose_);
+        path.push_back(cur->NodePose());
+        while (cur != start)
+        {
+            std::string tag = cur->Parent();
+            // std::cout << tag << std::endl;
+            cur = node_set_[tag];
+            path.push_back(cur->NodePose());
+        }
+        std::reverse(path.begin(), path.end());
+    }
+
+    void LPHAstar::UpdateEdgeCost()
+    {
+        auto delete_cords = costmap_2d_->DeleteObs();
+        for (int i = 0; i < delete_cords.size(); i++)
+        {
+            // printf("into delete obs update\n");
+            NodeHDsPtr node = GetNodeFromMap(delete_cords[i]);
+            UpdateVertex(node);
+            for (int i = 0; i < 8; i++)
+            {
+                Cord next_cord = node->Cordinate() + dir_[i];
+                if (!costmap_2d_->Valid(next_cord.x, next_cord.y))
+                {
+                    continue;
+                }
+                NodeHDsPtr next_node = GetNodeFromMap(next_cord);
+                UpdateVertex(next_node);
+            }
+        }
+        auto obs_cords = costmap_2d_->NewObs();
+        for (int i = 0; i < obs_cords.size(); i++)
+        {
+
+            NodeHDsPtr node = GetNodeFromMap(obs_cords[i]);
+            for (int i = 0; i < 8; i++)
+            {
+                Cord next_cord = node->Cordinate() + dir_[i];
+                if (!costmap_2d_->Valid(next_cord.x, next_cord.y))
+                {
+                    continue;
+                }
+                NodeHDsPtr next_node = GetNodeFromMap(next_cord);
+                // printf("into obs update\n");
+                UpdateVertex(next_node);
+            }
+        }
+    }
+
+} // namespace navigation

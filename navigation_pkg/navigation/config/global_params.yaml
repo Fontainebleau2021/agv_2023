@@ -1,0 +1,5 @@
+cur_pose_topic: cur_pose
+target_pose_topic: target_pose
+global_plan_topic: global_plan
+global_state_topic: global_state
+

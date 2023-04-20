@@ -1,0 +1,9 @@
+<launch>
+  <node pkg = "navigation" type = "costmap_ros_node" name = "costmap" output="screen">
+    <param name = "map_path" value ="$(find navigation)/map/navigation_map.png" />
+    <rosparam file="$(find navigation)/config/costmap/costmap_ros.yaml" command="load"/>
+  </node>
+
+
+  <node pkg="rviz" type="rviz" name="costmap_rviz" args="-d $(find navigation)/config/costmap_rviz.rviz" />
+</launch>
