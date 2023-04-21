@@ -22,4 +22,4 @@ rosrun motor_control phoneCommand.py
 查看并修改ip：
 ```
 ifconfig
-``
+```
