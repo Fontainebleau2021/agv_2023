@@ -41,6 +41,8 @@
 - networksocket_pkg ————云平台网络连接功能包
 - service_pkg ————启动服务功能包
 
+以下介绍为相关的环境配置文档
+
 ## Basic
 ```
 sudo apt-get install git
