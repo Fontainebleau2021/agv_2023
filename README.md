@@ -22,6 +22,8 @@
 
   - [**Ouster Lidar**](#Ouster_Lidar)
 
+  - [**ZED2相机配置**](#zed-open-capture)
+
   - [**USB摄像头**](#USB摄像头)
   
   - [**激光避障感知**](#depth_clustering)
@@ -522,6 +524,54 @@ roslaunch ouster_ros sensor.launch sensor_hostname:=os-122149001448.local lidar_
     TIME_FROM_ROS_TIME
     }"/>
 ```
+
+## zed-open-capture
+
+### Description
+
+The ZED Open Capture is a multi-platform, open-source C++ library for low-level camera and sensor capture for the ZED stereo camera family. It doesn't require CUDA and therefore can be used on many desktop and embedded platforms.
+
+The open-source library provides methods to access raw video frames, calibration data, camera controls and raw data from the camera sensors (on ZED 2 and ZED Mini). A synchronization mechanism is provided to get the correct sensor data associated to a video frame.
+
+**Note:** While in the ZED SDK all output data is calibrated and compensated, here the extracted raw data is not corrected by the camera and sensor calibration parameters. You can retrieve camera and sensor calibration data using the [ZED SDK](https://www.stereolabs.com/docs/video/camera-calibration/) to correct your camera data.
+
+
+#### Prerequisites
+
+ * Stereo camera: [ZED 2](https://www.stereolabs.com/zed-2/), [ZED](https://www.stereolabs.com/zed/), [ZED Mini](https://www.stereolabs.com/zed-mini/)
+ * Linux OS
+ * GCC (v7.5+)
+ * CMake (v3.1+)
+
+#### Install prerequisites
+
+The code is implemented majorly based on [ROS melodic](https://www.ros.org/)
+* Install ROS Melodic according to [ROS official instructions](http://wiki.ros.org/melodic/Installation/Ubuntu). Additionally, install `apriltag-ros` dependency with following step.
+
+    `$ sudo apt-get install ros-melodic-apriltag`
+
+* Install GCC compiler and build tools
+
+    `$ sudo apt install build-essential`
+
+* Install CMake build system
+
+    `$ sudo apt install cmake`
+
+* Install HIDAPI and LIBUSB libraries:
+
+    `$ sudo apt install libusb-1.0-0-dev libhidapi-libusb0 libhidapi-dev`
+
+* Install OpenCV to build the examples (optional)
+
+    `$ sudo apt install opencv-dev`
+
+####  Launch
+
+	$ catkin build
+	$ source devel/setup.bash
+	$ roslaunch zed-open-capture zed2_capture.launch
+
 ## USB摄像头
 >查看USB摄像头设备
 ```
