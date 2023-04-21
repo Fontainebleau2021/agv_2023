@@ -7,11 +7,9 @@ int main(int argc, char **argv)
     ServoMotorControl motor;
     ros::Rate loop_rate(5);
     //motor.SendVW(0.4, 0.2);
-    short left = 0, right = 0;
     while (ros::ok())
     {
         motor.RobotControl();
-        motor.MotorRPMRead(right, left);
         ros::spinOnce();
         loop_rate.sleep();
     }

@@ -1,5 +1,5 @@
 modbus:
-  baudrate: 9600
+  baudrate: 57600
   port_name: /dev/ttyUSB0
   timeout: 100
 servo_motor:
@@ -8,5 +8,5 @@ servo_motor:
   transfer: 60
   max_wheel_speed: 0.5
   max_omega: 0.45
-  left_slave_addr: 2
-  right_slave_addr: 1
+  left_slave_addr: 1
+  right_slave_addr: 2

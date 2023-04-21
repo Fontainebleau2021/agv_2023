@@ -13,6 +13,7 @@ from cv_bridge import CvBridge
 from geometry_msgs.msg import Twist
 import threading
 import sys
+import time
 from TcpServerHandler import *
 from customProtocol import *
 
@@ -21,10 +22,10 @@ from nav_msgs.msg import OccupancyGrid
 K_vel = 1000.0
 #K_vel = 400.0
 #K_omega = 1500.0
-#K_omega = 6000.0
-K_omega = 3000.0
+K_omega = 6000.0
 vel_last = 0.0
 omega_last = 0.0
+v_last=0.0
 sendPosArray = [0xff, 0xfe, 0x06, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
 CarCurPosBuffLen = 10
 CarCurPosBuff = []      # car current pos reserve in this buffer
@@ -189,6 +190,19 @@ if __name__ == '__main__':
                 rospy.loginfo("Publsh robot Pos[%0.2f m/s, %0.2f rad/s, %0.2f rad]", msg[0], msg[1], msg[2])
             elif (msg[0] <= 5):
                 (v, omega) = speedCacu(msg)
+                if(v!=v_last):
+                    v_temp=v_last
+                    delta=v-v_temp
+                    i=0
+                    while i<2:
+                        v_temp=v_temp+delta/2
+                        vel_msg.linear.x = v_temp
+                        vel_msg.angular.z = omega
+                        turtle_vel_pub.publish(vel_msg)
+                        time.sleep(1)
+                        i+=1
+                    
+                v_last=v
                 vel_msg.linear.x = v
                 vel_msg.angular.z = omega
                 # 发布消息

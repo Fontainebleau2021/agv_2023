@@ -1,0 +1,27 @@
+<launch>
+   <!-- rosbridge -->
+   <node pkg="rosbridge_server" type="rosbridge_websocket" name="rosbridge_server"/>
+   <node pkg="web_video_server" type="web_video_server" name="web_video_server"/>
+   
+   <!-- run camera -->
+   <node pkg="camera" type="zed_image_splitter" name="zed_image_splitter" /> 
+   <!-- <node pkg="rviz" type="rviz" name="rviz_camera" args="-d $(find camera)/launch/rviz.rviz" required="true" /> -->
+
+   <!--- Run NMEA-->
+   <node pkg="nmea_navsat_driver" type="nmea_topic_driver" name="nmea_topic_driver"/>
+   <!-- <node pkg="nmea_navsat_driver"   name="simple_data"  type="nmea_simple_data" /> -->
+
+   <!--- Run GPS_VIEWER-->
+   <node pkg="gps_viewer" type="gps_viewer" name="gps_viewer"/>
+ 
+   <!--- Map Load -->
+   <!-- <node name="map_load" pkg="map_server" type="map_server" args="$(find gps_viewer)/map/nav.yaml" /> -->
+   <node pkg="tf" type="static_transform_publisher" name="gps2map" args="0.0 0.0 0.0 -1.470795 0.0 0.0 /map /world 50" />
+ 
+   <!--- Run GPS Rviz-->
+   <!-- <node pkg="rviz" type="rviz" name="gps_rviz" args="-d $(find gps_viewer)/config/rviz_map.rviz" /> -->
+
+   <node pkg="robotsocket" type="robotsocket" name="robotsocket" output="screen"/>
+  
+</launch>
+  

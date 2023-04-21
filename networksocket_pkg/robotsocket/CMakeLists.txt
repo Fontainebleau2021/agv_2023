@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(motor_control)
+project(robotsocket)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -11,10 +11,10 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
-  serial
-  sensor_msgs
-  tf
+  geometry_msgs
   message_generation
+  turtlesim
+  message_filters
 )
 
 ## System dependencies are found with CMake's conventions
@@ -51,11 +51,14 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  state.msg
+  harvest_action.msg
+  harvest_vel.msg
+  harvest_state.msg
+)
+
 ## Generate services in the 'srv' folder
 # add_service_files(
 #   FILES
@@ -71,10 +74,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -107,8 +110,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES motor_control1
-# CATKIN_DEPENDS message_runtime
+#  LIBRARIES robotsocket
+ CATKIN_DEPENDS geometry_msgs roscpp rospy std_msgs message_runtime
 #  DEPENDS system_lib
 )
 
@@ -119,19 +122,75 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-  include
+include
   ${catkin_INCLUDE_DIRS}
+  # /usr/include/
 )
+
+# 增加了一个自定义的库
+add_library(
+  Hello
+  src/test/hello.cpp
+  src/test/test1.cpp
+  include/robotsocket/hello.h
+)
+add_dependencies(Hello ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+add_library(
+  robotsocket_h
+  src/convert/array2char.cpp
+  src/convert/hex2ascii.cpp
+  src/convert/ascii2hex.cpp
+  src/convert/char2array.cpp
+  src/convert/dec2hex.cpp
+  src/convert/hex2dec.cpp
+  src/convert/hex2bin.cpp
+  src/execute/recv_json.cpp
+  src/execute/action.cpp
+  src/execute/control.cpp
+  src/execute/harvest_analysis.cpp
+  include/robotsocket/robotsocket.h
+  include/robotsocket/harvestingRobotClient.h
+)
+
+add_dependencies(robotsocket_h ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+add_executable(test_json src/test/test_json.cpp)
+target_link_libraries(test_json libjsoncpp.a ${catkin_LIBRARIES})
+
+add_executable(robotsocket src/robotsocket.cpp)
+target_link_libraries(robotsocket robotsocket_h libjsoncpp.a  ${catkin_LIBRARIES})
+
+add_executable(harvestingRobotClient src/harvestingRobotClient.cpp)
+target_link_libraries(harvestingRobotClient robotsocket_h libjsoncpp.a  ${catkin_LIBRARIES})
+
+add_executable(test_server src/test/test_server.cpp)
+target_link_libraries(test_server ${catkin_LIBRARIES})
+
+add_executable(helloworld src/test/helloworld.cpp)
+target_link_libraries(helloworld ${catkin_LIBRARIES})
+
+add_executable(hello2 src/test/hello2.cpp)
+target_link_libraries(hello2 Hello ${catkin_LIBRARIES})
+
+add_executable(test_socket src/test/test_socket.cpp)
+target_link_libraries(test_socket ${catkin_LIBRARIES})
+
+add_executable(test_pub src/test/test_pub.cpp)
+target_link_libraries(test_pub ${catkin_LIBRARIES})
+
+add_executable(test_sub src/test/test_sub.cpp)
+target_link_libraries(test_sub ${catkin_LIBRARIES})
+
+add_executable(test_multisub src/test/test_multisub.cpp)
+target_link_libraries(test_multisub ${catkin_LIBRARIES})
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/motor_control1.cpp
+#   src/${PROJECT_NAME}/robotsocket.cpp
 # )
 
-add_library(servo_motor_lib
-src/servo_motor_control.cpp
-src/ros_modbus.cpp
-)
+
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -141,7 +200,7 @@ src/ros_modbus.cpp
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/motor_control1_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/robotsocket_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -157,17 +216,6 @@ src/ros_modbus.cpp
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-
-
-
-add_executable(modbus_test src/modbus_test.cpp src/ros_modbus.cpp)
-target_link_libraries(modbus_test ${catkin_LIBRARIES})
-
-add_executable(servo_motor src/main.cpp )
-target_link_libraries(servo_motor 
-${catkin_LIBRARIES}
-servo_motor_lib
-)
 
 #############
 ## Install ##
@@ -216,7 +264,7 @@ servo_motor_lib
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_motor_control1.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_robotsocket.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

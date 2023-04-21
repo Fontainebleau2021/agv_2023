@@ -1,5 +1,0 @@
-<launch>
-  <node name="motor" pkg="motor_control" type="motor" output="screen">
-    <rosparam file="$(find motor_control)/config/control_params.yaml" command="load"/>
-  </node>
-</launch>

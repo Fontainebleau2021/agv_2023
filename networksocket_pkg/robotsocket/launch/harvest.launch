@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="robotsocket" type="harvestingRobotClient" name="harvestingRobotClient" output="screen"/>
+  
+</launch>

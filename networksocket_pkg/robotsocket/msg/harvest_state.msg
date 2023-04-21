@@ -1,0 +1,12 @@
+int8[16] DI
+float64[8] analog
+int8[16] DO
+float64[3] gyroscope
+float64[2] voltage
+float64[2] vel
+float64[2] current
+int16[4] temperature
+int8[32] left_status
+int8[32] right_status
+int8[32] left_fault
+int8[32] right_fault

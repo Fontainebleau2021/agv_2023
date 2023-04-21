@@ -6,8 +6,19 @@
 #include <ros/ros.h>
 #include <serial/serial.h>
 
+/*
+功能：ros 串口中 modbus协议类的实现
+// 功能码03 读单个寄存器的值
+short ReadRegister
+//写寄存器
+void WriteSingleRegister
+//写多个寄存器
+void WriteMultiRegister
+*/
+
+// test=0 正常使用
+// test = 1 在没有接串口外设的情况下使用 会打印出要发送的数据  
 #define test 0
-extern int a;
 
 static unsigned char auchCRCHi[] = {
 	0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81,

@@ -8,16 +8,23 @@
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Bool.h>
 
+
+/*
+功能：订阅发布的速度指令 求解电机转速发送给电机驱动器
+*/
+ 
+
+
 struct RobotParam
 {
-    double wheel_base; // 驱动轮间距
-    double wheel_radius; //车轮半径
-    double transfer; //减速机传动比
-    double max_wheel_speed; //车轮的最大线速度
-    double max_omega; // 车旋转的最大角速度
+    double wheel_base;
+    double wheel_radius;
+    double transfer;
+    double max_wheel_speed;
+    double max_omega;
 };
 
-static int speed_register_addr = 324;
+
 
 class ServoMotorControl
 {
@@ -42,8 +49,6 @@ public:
     void StopReason();
     //主运行函数
     void RobotControl();
-
-    void MotorRPMRead(short& right, short& left);
 private:
     /* data */
     RosModbus ros_modbus_;

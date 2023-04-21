@@ -16,11 +16,13 @@ void CRC16(unsigned char *puchMsg, unsigned short usDataLen, unsigned char &uchC
 
 int RosModbus::Init()
 {
-  
+    std::string port_name;
     ros::NodeHandle mod_nh("~/modbus");
-    mod_nh.param("baudrate", baudrate_, 19200);
+    mod_nh.param("baudrate", baudrate_, 9600);
     mod_nh.param("timeout", timeout_, 100);
     mod_nh.param<std::string>("port_name", port_, "/dev/ttyUSB0");
+    ROS_INFO("%d", baudrate_);
+    std::cout<<port_<<std::endl;
     try
     {
         // 设置串口属性，并打开串口
@@ -49,6 +51,8 @@ int RosModbus::Init()
     {
         return -1;
     }
+    
+
 }
 
 
@@ -120,12 +124,21 @@ void RosModbus::WriteSingleRegister(unsigned char slave_addr, short register_add
     // 这个需要测试一下
     send[6] = uchCRCHi;
     send[7] = uchCRCLo;
+PrintData(send, 8);
 #if test
     PrintData(send, 8);
 #else
     serial_.write(send, 8);
     serial_.waitReadable();
-    if(serial_.available()) serial_.read(serial_.available());
+    //if(serial_.available()) serial_.read(serial_.available());
+	unsigned char receive_data[256];
+    size_t n = serial_.available();
+    if (n == 0)
+    {
+        ROS_INFO("Do not receive data");
+    }
+    serial_.read(receive_data, n);
+PrintData(receive_data, 8);
 #endif //test
 }
 

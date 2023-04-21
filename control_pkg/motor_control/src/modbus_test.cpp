@@ -1,6 +1,5 @@
 #include "ros_modbus.h"
 
-int a = 1;
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "ros_modbus_test");
