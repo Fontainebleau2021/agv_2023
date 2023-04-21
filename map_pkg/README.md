@@ -2,7 +2,7 @@
 
 1、map_load功能包 ————地图加载
 - 参数修改：
-    - map文件夹为二维珊格地图加载文件夹，其中png/pgm文件为地图文件，yaml文件为配置文件，其中：
+    - map文件夹为二维栅格地图加载文件夹，其中png/pgm文件为地图文件，yaml文件为配置文件，其中：
         - image: map.png　　#文件名
         - resolution: 0.050000　　#地图分辨率 单位：米/像素
         - origin: [-49.0286, -107.401, 0.0]   #图像左下角在地图坐标下的坐标
@@ -17,4 +17,15 @@ roslaunch map_load map_load.launch
 roslaunch map_load map_load_rviz.launch 
 ```
 
+2、publish_pointcloud ————将三维pcd地图压缩为二维栅格地图并输出
+- 参数修改：
+    - pcd文件目录————demo.launch中的path
+    - 压缩的相关参数在octomaptransform.launch中：
+        - resolution 地图分辨率
+        - sensor_model/max_range 压缩的范围
+        - pointcloud_max_z和pointcloud_min_z 压缩的高度限制
+- 运行
 
+```
+roslaunch publish_pointcloud demo.launch 
+```
