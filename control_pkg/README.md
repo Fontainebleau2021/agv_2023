@@ -1,29 +1,25 @@
-# planning_ws
-1：串口权限设置——建议永久 详情百度
+# control_pkg
+
+1、串口权限设置——建议永久，详见前一级的基本配置
+```
 ls -s /dev/ttyUSB
 sudo chmod 777 /dev/ttyUSB0
 sudo chmod 777 /dev/ttyUSB1
+```
 
-2：servo_motor.yaml 串口参数和机器人尺寸参数设置
-3：roslaunch motor_control servo_motor_control.launch
+2、servo_motor.yaml————串口参数和机器人尺寸参数设置，其中，.yaml中需要修改port_name为当前串口号，例如：/dev/ttyUSB1
+
+3、控制运行
+```
+roslaunch motor_control servo_motor_control.launch
+```
  里面订阅/cmd_vel 话题消息计算两侧电机转速
 
-4.rosrun motor_control phoneCommand.py 
-
-
-//motor_control_test/
-.yaml: port_name: /dev/ttyUSB1
-
-ls -s dev/ttyUSB tab tab
-sudo chmod dev/ttyUSB0
-sudo chmod dev/ttyUSB1
-
-cd motor_control_test
-source devel/setup.bash
-roslaunch motor_control servo_motor_control.launch
-
-cd motor_control_test
-source devel/setup.bash
+4、手机APP控制，需要在同一个网络环境下（同一个WIFI）
+```
 rosrun motor_control phoneCommand.py 
-
+```
+查看并修改ip：
+```
 ifconfig
+``
