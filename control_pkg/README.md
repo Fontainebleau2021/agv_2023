@@ -1,5 +1,8 @@
 # control_pkg
-
+> Latest update  --  2023.04.21
+> 
+> 系统：Ubuntu 18.04
+>
 1、串口权限设置——建议永久，详见前一级的基本配置
 ```
 ls -s /dev/ttyUSB
