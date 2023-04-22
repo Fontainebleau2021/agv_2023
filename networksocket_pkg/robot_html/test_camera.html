@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+
+<script type="text/javascript" src="three.min.js"></script>
+<script type="text/javascript" src="eventemitter2.js"></script>
+<script type="text/javascript" src="roslib.min.js"></script>
+<script type="text/javascript" src="ros3d.min.js"></script>
+<script type="text/javascript" src="mjpegcanvas.min.js"></script>
+<script type="text/javascript" type="text/javascript">
+  // Connecting to ROS
+  // -----------------
+  var urls;
+
+  var ros = new ROSLIB.Ros();
+
+  // If there is an error on the backend, an 'error' emit will be emitted.
+  ros.on('error', function(error) {
+    document.getElementById('connecting').style.display = 'none';
+    document.getElementById('connected').style.display = 'none';
+    document.getElementById('closed').style.display = 'none';
+    document.getElementById('error').style.display = 'inline';
+    console.log(error);
+  });
+
+  // Find out exactly when we made a connection.
+  ros.on('connection', function() {
+    document.getElementById('connecting').style.display = 'none';
+    document.getElementById('error').style.display = 'none';
+    document.getElementById('closed').style.display = 'none';
+    document.getElementById('connected').style.display = 'inline';
+  });
+
+  ros.on('close', function() {
+    document.getElementById('connecting').style.display = 'none';
+    document.getElementById('connected').style.display = 'none';
+    document.getElementById('closed').style.display = 'inline';
+  });
+  // Create a connection to the rosbridge WebSocket server.
+  function connect()
+  { this.urls = document.getElementById("URL").value;
+    // urls: 'ws://localhost:9090'
+    ros.connect(this.urls);
+  }
+
+  function init() {
+
+    // Create the main viewer.
+    //机载摄像头画面
+    var viewer1 = new MJPEGCANVAS.Viewer({
+      divID : 'mjpeg',
+      host : '106.15.233.31',
+      port:'6001',
+      width : 1080,
+      height : 720,
+      topic:'/zed2_left/image_raw',
+      quality : 10,
+    });
+  }
+</script>
+
+
+</head>
+<body onload="init()">
+  <div class="connect_box">
+    <p class="url_text">URL: <input class="url_text_1" type="text" value="ws://106.15.233.31:9090" id="URL"/> 
+      <button class="url_connect"  onclick="connect()"><strong>Connect</strong></button>
+    </p>
+
+    <div id="statusIndicator">
+      <p id="connecting">
+        Connecting to rosbridge...
+      </p>
+      <p id="connected" style="color:#00D600; display:none">
+        Connected
+      </p>
+      <p id="error" style="color:#FF0000; display:none">
+        Error in the backend!
+      </p>
+      <p id="closed" style="display:none">
+        Connection closed.
+      </p>
+    </div>
+  </div>
+
+  <div id="mjpeg"></div>
+
+</body>
+</html>
