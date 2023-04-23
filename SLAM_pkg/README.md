@@ -13,7 +13,7 @@ roslaunch lio_sam run.launch
 #启动相应传感器的liosam算法，例如启动livox的liosam算法
 roslaunch lio_sam run_livox.launch
 ```
-- 车辆载入
+- 车辆载入,更新车辆模型可用这个网址-[Free 3D car Models](https://free3d.com/3d-models/collada-car) 
 ```
 rosrun lio_sam car_pub.py
 ```
