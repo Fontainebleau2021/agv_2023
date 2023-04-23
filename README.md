@@ -1,5 +1,5 @@
 # agv_2023_pkg
-> Latest update  --  2023.04.22
+> Latest update  --  2023.04.23
 > 
 > 系统：Ubuntu 18.04
 >
@@ -42,6 +42,7 @@
 - SLAM_pkg ————SLAM定位功能包
 - networksocket_pkg ————云平台网络连接功能包
 - service_pkg ————启动服务功能包
+- sensor_run_sh ————启动传感器的sh文件
 
 以下介绍为相关的环境配置文档
 
