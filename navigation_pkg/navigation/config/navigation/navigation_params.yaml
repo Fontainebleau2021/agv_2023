@@ -2,7 +2,7 @@ control_rate: 5
 navigation:
   vel_topic: /cmd_vel # 发布速度的话题
   target_pose_topic: /move_base_simple/goal  # 接收导航目标位置的话题名
-  cur_pose_topic: /lio_sam/mapping/odometry_incremental #/odometry/imu_incremental #/lio_sam/mapping/odometry_incremental # #/odom   # 订阅里程计
+  cur_pose_topic: /odom #/lio_sam/mapping/odometry_incremental #/odometry/imu_incremental #/lio_sam/mapping/odometry_incremental # #/odom   # 订阅里程计
   navi_cmd_topic: /navi_cmd # 接收导航指令的话题名
   frame_id: map 
   linecontrol_xy_tolerance: 0.15  # 直线行驶的目标xy精度
