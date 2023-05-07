@@ -754,15 +754,18 @@ sudo pip install  -i https://pypi.tuna.tsinghua.edu.cn/simple --editable . --upg
 >测试evo
 
 （1）命令行输入evo，现实如下：
+
 <p align='center'>
     <img src="./image/evo.png" alt="drawing" width="800"/>
 </p>
-（2）
-通过源码包下自带的.txt测试文件
+
+（2）通过源码包下自带的.txt测试文件
+
 ```
 cd test/data
 evo_traj kitti KITTI_00_ORB.txt KITTI_00_SPTAM.txt --ref=KITTI_00_gt.txt -p --plot_mode=xyz
 ```
+
 安装成功页面：
 <p align='center'>
     <img src="./image/evo_traj.png" alt="drawing" width="800"/>
