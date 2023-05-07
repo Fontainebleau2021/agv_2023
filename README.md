@@ -777,3 +777,11 @@ evo_traj kitti KITTI_00_ORB.txt KITTI_00_SPTAM.txt --ref=KITTI_00_gt.txt -p --pl
 pip list              #列出pip安装的软件包
 pip uninstall evo     #卸载
 ```
+
+>使用指令
+
+读取bag画出轨迹
+
+```
+evo_traj bag ROS_example.bag --all_topics -p --plot_mode=xy
+```
