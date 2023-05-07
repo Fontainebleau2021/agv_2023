@@ -29,6 +29,8 @@
   - [**激光避障感知**](#depth_clustering)
   
   - [**GPS相关**](#GPS相关)
+  
+  - [**EVO-SLAM轨迹对比工具**](#EVO-SLAM轨迹对比工具)
 
 
 ## 功能包简介
@@ -730,3 +732,38 @@ rosrun rviz rviz
 1、检查bag中GPS信号的话题格式
 
 2、参照（1）中的4、5进行离线测试
+
+## EVO-SLAM轨迹对比工具
+>安装evo
+
+因为ros依赖的python版本是2.7，目前最新版本的evo是支持python3.7+，在ubuntu18.04中建议通过源码安装evo。
+```
+python --version  //确认当前python版本是否为2，若为3建议手动切换到2在进行安装
+```
+（注意python和pip下载的对应关系，python2.7就用pip，python3用pip3，evo1.1.2用pip，evo高版本用pip3 ；注意ros只支持python2）
+```
+git clone https://github.com/MichaelGrupp/evo.git
+#下载git包
+cd evo
+git checkout v1.12.0
+#检查
+sudo pip install  -i https://pypi.tuna.tsinghua.edu.cn/simple --editable . --upgrade --no-binary evo 
+#解决下载慢的问题（镜像）（我这里找不到命令，所以前面加了sudo）
+```
+
+>测试evo
+
+（1）命令行输入evo，现实如下：
+<p align='center'>
+    <img src="./image/evo.png" alt="drawing" width="800"/>
+</p>
+（2）
+通过源码包下自带的.txt测试文件
+```
+cd test/data
+evo_traj kitti KITTI_00_ORB.txt KITTI_00_SPTAM.txt --ref=KITTI_00_gt.txt -p --plot_mode=xyz
+```
+安装成功页面：
+<p align='center'>
+    <img src="./image/evo_traj.png" alt="drawing" width="800"/>
+</p>
