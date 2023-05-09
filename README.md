@@ -785,3 +785,11 @@ pip uninstall evo     #卸载
 ```
 evo_traj bag ROS_example.bag --all_topics -p --plot_mode=xy
 ```
+
+>问题解决
+
+ - 在mac上，plot后端不匹配python tk
+
+```
+evo_config set plot_backend tkagg
+```
