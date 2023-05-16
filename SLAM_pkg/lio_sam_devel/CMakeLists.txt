@@ -115,3 +115,23 @@ target_link_libraries(${PROJECT_NAME}_mapOptmization Boost::timer ${catkin_LIBRA
 add_executable(${PROJECT_NAME}_imuPreintegration src/imuPreintegration.cpp)
 target_link_libraries(${PROJECT_NAME}_imuPreintegration Boost::timer ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} gtsam)
 
+#LIO-SAM-RELOCAL::
+# Range Image Projection
+add_executable(${PROJECT_NAME}_imageProjection_relocal src/imageProjection_relocal.cpp)
+add_dependencies(${PROJECT_NAME}_imageProjection_relocal ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
+target_link_libraries(${PROJECT_NAME}_imageProjection_relocal ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES})
+
+# Feature Association
+add_executable(${PROJECT_NAME}_featureExtraction_relocal src/featureExtraction_relocal.cpp)
+add_dependencies(${PROJECT_NAME}_featureExtraction_relocal ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
+target_link_libraries(${PROJECT_NAME}_featureExtraction_relocal ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES})
+
+# IMU Preintegration
+add_executable(${PROJECT_NAME}_imuPreintegration_relocal src/imuPreintegration_relocal.cpp)
+target_link_libraries(${PROJECT_NAME}_imuPreintegration_relocal ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} gtsam)
+
+#Global Localization
+add_executable(${PROJECT_NAME}_globalLocalize src/globalLocalize.cpp)
+add_dependencies(${PROJECT_NAME}_globalLocalize ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
+target_compile_options(${PROJECT_NAME}_globalLocalize PRIVATE ${OpenMP_CXX_FLAGS})
+target_link_libraries(${PROJECT_NAME}_globalLocalize ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} ${OpenMP_CXX_FLAGS} gtsam)

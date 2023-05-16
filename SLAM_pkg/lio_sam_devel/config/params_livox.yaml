@@ -4,7 +4,7 @@ lio_sam:
   pointCloudTopic: "/velodyne_points"      # Point cloud data(ls:converted_velodyne_points,liosam:points_raw)
   imuTopic: "/imu/data"                         # IMU data(liosam:imu_raw)
   odomTopic: "odometry/imu"                   # IMU pre-preintegration odometry, same frequency as IMU
-  gpsTopic: "odometry/gpsp"                   # GPS odometry topic from navsat, see module_navsat.launch file
+  gpsTopic: "marvel_odom"                   # GPS odometry topic from navsat, see module_navsat.launch file /odometry/gpsp
 
   # Frames
   lidarFrame: "base_link"
@@ -16,7 +16,7 @@ lio_sam:
   useImuHeadingInitialization: false           # if using GPS data, set to "true"
   useGpsElevation: false                      # if GPS elevation is bad, set to "false"
   gpsCovThreshold: 2                        # m^2, threshold for using GPS data
-  poseCovThreshold: 25                      # m^2, threshold for using GPS data
+  poseCovThreshold: 0                      # m^2, threshold for using GPS data 25
   
   # Export settings
   savePCD: false                              # https://github.com/TixiaoShan/LIO-SAM/issues/3

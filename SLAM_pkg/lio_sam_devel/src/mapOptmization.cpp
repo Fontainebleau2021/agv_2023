@@ -65,6 +65,7 @@ public:
     ros::Publisher pubLaserOdometryIncremental;
     ros::Publisher pubKeyPoses;
     ros::Publisher pubPath;
+    ros::Publisher pubGlobalOdom;
 
     ros::Publisher pubHistoryKeyFrames;
     ros::Publisher pubIcpKeyFrames;
@@ -148,6 +149,7 @@ public:
     deque<std_msgs::Float64MultiArray> loopInfoVec;
 
     nav_msgs::Path globalPath;
+    nav_msgs::Odometry global_odom;
 
     Eigen::Affine3f transPointAssociateToMap;
     Eigen::Affine3f incrementalOdometryAffineFront;
@@ -166,6 +168,8 @@ public:
         pubLaserOdometryGlobal      = nh.advertise<nav_msgs::Odometry> ("lio_sam/mapping/odometry", 1);
         pubLaserOdometryIncremental = nh.advertise<nav_msgs::Odometry> ("lio_sam/mapping/odometry_incremental", 1);
         pubPath                     = nh.advertise<nav_msgs::Path>("lio_sam/mapping/path", 1);
+        pubGlobalOdom               = nh.advertise<nav_msgs::Odometry>("lio_sam/global_odom", 1);
+
 
         subCloud = nh.subscribe<lio_sam::cloud_info>("lio_sam/feature/cloud_info", 1, &mapOptimization::laserCloudInfoHandler, this, ros::TransportHints().tcpNoDelay());
         subGPS   = nh.subscribe<nav_msgs::Odometry> (gpsTopic, 200, &mapOptimization::gpsHandler, this, ros::TransportHints().tcpNoDelay());
@@ -1388,12 +1392,14 @@ public:
             noiseModel::Diagonal::shared_ptr priorNoise = noiseModel::Diagonal::Variances((Vector(6) << 1e-2, 1e-2, M_PI*M_PI, 1e8, 1e8, 1e8).finished()); // rad*rad, meter*meter
             gtSAMgraph.add(PriorFactor<Pose3>(0, trans2gtsamPose(transformTobeMapped), priorNoise));
             initialEstimate.insert(0, trans2gtsamPose(transformTobeMapped));
+            ROS_INFO("gtSAMgraph(!!!!!!!!)");
         }else{
             noiseModel::Diagonal::shared_ptr odometryNoise = noiseModel::Diagonal::Variances((Vector(6) << 1e-6, 1e-6, 1e-6, 1e-4, 1e-4, 1e-4).finished());
             gtsam::Pose3 poseFrom = pclPointTogtsamPose3(cloudKeyPoses6D->points.back());
             gtsam::Pose3 poseTo   = trans2gtsamPose(transformTobeMapped);
             gtSAMgraph.add(BetweenFactor<Pose3>(cloudKeyPoses3D->size()-1, cloudKeyPoses3D->size(), poseFrom.between(poseTo), odometryNoise));
             initialEstimate.insert(cloudKeyPoses3D->size(), poseTo);
+            ROS_INFO("gtSAMgraph(@@@@@@@@@@@@@@@@@@)");
         }
     }
 
@@ -1401,7 +1407,6 @@ public:
     {
         if (gpsQueue.empty())
             return;
-
         // wait for system initialized and settles down
         if (cloudKeyPoses3D->points.empty())
             return;
@@ -1410,14 +1415,12 @@ public:
             if (pointDistance(cloudKeyPoses3D->front(), cloudKeyPoses3D->back()) < 5.0)
                 return;
         }
-
         // pose covariance small, no need to correct
         if (poseCovariance(3,3) < poseCovThreshold && poseCovariance(4,4) < poseCovThreshold)
-            return;
+            return; 
 
         // last gps position
         static PointType lastGPSPoint;
-
         while (!gpsQueue.empty())
         {
             if (gpsQueue.front().header.stamp.toSec() < timeLaserInfoCur - 0.2)
@@ -1454,7 +1457,6 @@ public:
                 // GPS not properly initialized (0,0,0)
                 if (abs(gps_x) < 1e-6 && abs(gps_y) < 1e-6)
                     continue;
-
                 // Add GPS every a few meters
                 PointType curGPSPoint;
                 curGPSPoint.x = gps_x;
@@ -1470,7 +1472,95 @@ public:
                 noiseModel::Diagonal::shared_ptr gps_noise = noiseModel::Diagonal::Variances(Vector3);
                 gtsam::GPSFactor gps_factor(cloudKeyPoses3D->size(), gtsam::Point3(gps_x, gps_y, gps_z), gps_noise);
                 gtSAMgraph.add(gps_factor);
+                aLoopIsClosed = true;
+                break;
+            }
+        }
+    }
 
+    void addGPS_marvel_Factor()
+    {
+        if (gpsQueue.empty())
+            return;
+        //ROS_INFO("GPS(#############)");
+
+        // wait for system initialized and settles down
+
+        if (cloudKeyPoses3D->points.empty())
+            return;
+        // else
+        // {
+        //     if (pointDistance(cloudKeyPoses3D->front(), cloudKeyPoses3D->back()) < 2.0)
+        //         return;
+        // }
+        // ROS_INFO("GPS(000000000000)");
+
+        // pose covariance small, no need to correct
+
+        if (poseCovariance(3,3) < poseCovThreshold && poseCovariance(4,4) < poseCovThreshold)
+            return; 
+
+        // last gps position
+        static PointType lastGPSPoint;
+        //ROS_INFO("GPS(------------)");
+        while (!gpsQueue.empty())
+        {
+            if (gpsQueue.front().header.stamp.toSec() < timeLaserInfoCur - 0.2)
+            {
+                // message too old
+                gpsQueue.pop_front();
+                //ROS_INFO("GPS message too old!");
+            }
+            else if (gpsQueue.front().header.stamp.toSec() > timeLaserInfoCur + 0.2)
+            {
+                // message too new
+                //ROS_INFO("GPS message too new!");
+                break;
+            }
+            else
+            {
+                nav_msgs::Odometry thisGPS = gpsQueue.front();
+                gpsQueue.pop_front();
+
+                // GPS too noisy, skip
+                float noise_x = thisGPS.pose.covariance[0];
+                float noise_y = thisGPS.pose.covariance[7];
+                float noise_z = thisGPS.pose.covariance[14];
+                // if (noise_x > gpsCovThreshold || noise_y > gpsCovThreshold)
+                //     continue;
+
+                float gps_x = thisGPS.pose.pose.position.x;
+                float gps_y = thisGPS.pose.pose.position.y;
+                float gps_z = thisGPS.pose.pose.position.z;
+                if (!useGpsElevation)
+                {
+                    gps_z = transformTobeMapped[5];
+                    //noise_z = 0.01;
+                }
+                //ROS_INFO("GPS(222222222222)");
+                // GPS not properly initialized (0,0,0)
+                if (abs(gps_x) < 1e-6 && abs(gps_y) < 1e-6)
+                    continue;
+                //ROS_INFO("GPS(333333333333)");
+                // Add GPS every a few meters
+                PointType curGPSPoint;
+                curGPSPoint.x = gps_x;
+                curGPSPoint.y = gps_y;
+                curGPSPoint.z = gps_z;
+                if (pointDistance(curGPSPoint, lastGPSPoint) < 0.0000001)
+                    continue;
+                else
+                    lastGPSPoint = curGPSPoint;
+                //ROS_INFO("GPS(444444444444)");
+                gtsam::Vector Vector3(3);
+                // Vector3 << max(noise_x, 1.0f), max(noise_y, 1.0f), max(noise_z, 1.0f);
+                // Vector3 << 1e-2, 1e-2, 1e-2;
+                Vector3 << noise_x, noise_y, noise_z;
+                noiseModel::Diagonal::shared_ptr gps_noise = noiseModel::Diagonal::Variances(Vector3);
+                // ROS_INFO("Marvel---- x: %f --- y: %f --- z: %f ---.", gps_x, gps_y, gps_z);
+                gtsam::GPSFactor gps_factor(cloudKeyPoses3D->size(), gtsam::Point3(gps_x, gps_y, gps_z), gps_noise);
+                gtSAMgraph.add(gps_factor);
+                ROS_INFO("gtSAMgraph(##########################)");
                 aLoopIsClosed = true;
                 break;
             }
@@ -1506,7 +1596,7 @@ public:
         addOdomFactor();
 
         // gps factor
-        addGPSFactor();
+        addGPS_marvel_Factor();
 
         // loop factor
         addLoopFactor();
@@ -1629,7 +1719,13 @@ public:
         pose_stamped.pose.orientation.y = q.y();
         pose_stamped.pose.orientation.z = q.z();
         pose_stamped.pose.orientation.w = q.w();
-
+        global_odom.pose.pose.position.x = pose_stamped.pose.position.x;
+        global_odom.pose.pose.position.y = pose_stamped.pose.position.y;
+        global_odom.pose.pose.position.z = pose_stamped.pose.position.z;
+        global_odom.pose.pose.orientation.x = pose_stamped.pose.orientation.x;
+        global_odom.pose.pose.orientation.y = pose_stamped.pose.orientation.y;
+        global_odom.pose.pose.orientation.z = pose_stamped.pose.orientation.z;
+        global_odom.pose.pose.orientation.w = pose_stamped.pose.orientation.w;
         globalPath.poses.push_back(pose_stamped);
     }
 
@@ -1734,8 +1830,10 @@ public:
         if (pubPath.getNumSubscribers() != 0)
         {
             globalPath.header.stamp = timeLaserInfoStamp;
-            globalPath.header.frame_id = odometryFrame;
+            globalPath.header.frame_id = odometryFrame;        
+            global_odom.header = globalPath.header;
             pubPath.publish(globalPath);
+            pubGlobalOdom.publish(global_odom);
         }
         // publish SLAM infomation for 3rd-party usage
         static int lastSLAMInfoPubSize = -1;
