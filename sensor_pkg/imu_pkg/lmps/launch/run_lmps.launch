@@ -1,3 +1,0 @@
-<launch>
-	<node pkg="openzen_sensor" type="openzen_sensor_node" name="lpms_imu" output="screen" ns="lmps" />
-</launch>

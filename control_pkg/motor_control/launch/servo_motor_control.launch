@@ -1,5 +1,0 @@
-<launch>
-  <node name="servo_motor" pkg="motor_control" type="servo_motor" output="screen">
-    <rosparam file="$(find motor_control)/config/servo_motor.yaml" command="load"/>
-  </node>
-</launch>
