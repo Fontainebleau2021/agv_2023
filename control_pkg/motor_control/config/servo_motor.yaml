@@ -1,0 +1,12 @@
+modbus:
+  baudrate: 57600
+  port_name: /dev/ttyUSB0
+  timeout: 100
+servo_motor:
+  wheel_base: 0.775
+  wheel_radius: 0.1
+  transfer: 60
+  max_wheel_speed: 0.5
+  max_omega: 0.45
+  left_slave_addr: 1
+  right_slave_addr: 2
