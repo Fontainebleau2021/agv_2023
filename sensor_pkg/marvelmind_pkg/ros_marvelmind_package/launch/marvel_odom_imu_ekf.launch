@@ -1,0 +1,17 @@
+<launch>
+	<node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
+		<param name="output_frame" value="efk_odom"/>
+		<param name="base_footprint_frame" value="imu"/>
+		<param name="freq" value="30.0"/>
+		<param name="sensor_timeout" value="1.0"/>
+		<param name="odom_used" value="true"/>
+		<param name="imu_used" value="true"/>
+		<param name="vo_used" value="false"/>
+		<param name="debug" value="false"/>
+		<param name="self_diagnose" value="false"/>
+		<remap from="imu_data" to="/imu/data" />
+		<remap from="odom" to="/marvel_zone_odom" />
+		<!-- 将节点订阅的 imu_data 话题改名为 imu,如果 imu 节点发布的话题是 imu_data 就不用修改 -->
+	</node>
+</launch>
+

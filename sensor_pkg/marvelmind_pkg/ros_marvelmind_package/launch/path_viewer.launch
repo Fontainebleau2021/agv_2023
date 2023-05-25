@@ -1,0 +1,9 @@
+<launch>
+
+    <node name="path_viewer" pkg="marvelmind_nav" type="path_view" output="screen" />
+
+    <node pkg="rviz" type="rviz" name="rviz" output="screen" 
+      args="-d $(find marvelmind_nav)/rviz/path.rviz" required="true">
+    </node>
+
+</launch>

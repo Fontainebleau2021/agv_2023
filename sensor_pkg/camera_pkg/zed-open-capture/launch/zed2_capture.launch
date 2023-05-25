@@ -1,0 +1,8 @@
+<launch>
+
+  <node pkg="zed-open-capture" type="anyzed2_ros" name="zed2" output="screen">
+
+  </node>
+
+</launch>
+
