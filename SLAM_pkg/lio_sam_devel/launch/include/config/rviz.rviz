@@ -461,6 +461,14 @@ Visualization Manager:
           Value: true
       Enabled: true
       Name: Mapping
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /line_traj
+      Name: Marker
+      Namespaces:
+        "": true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 0; 0; 0
@@ -477,7 +485,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 97.43701171875
+      Distance: 34.946922302246094
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -492,10 +500,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.1253981590270996
+      Pitch: 0.32539892196655273
       Target Frame: base_link
       Value: Orbit (rviz)
-      Yaw: 3.3316705226898193
+      Yaw: 3.751675844192505
     Saved: ~
 Window Geometry:
   Displays:
@@ -511,5 +519,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1948
-  X: 130
-  Y: 192
+  X: 89
+  Y: 129

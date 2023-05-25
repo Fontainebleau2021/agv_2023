@@ -70,3 +70,36 @@ def publish_car_model(model_pub):
 
     model_pub.publish(mesh_marker)
 
+def publish_line_model(line_pub):
+    line_marker=Marker()
+    line_marker.header.frame_id="map"
+    line_marker.id=-2
+    line_marker.lifetime=rospy.Duration()
+    line_marker.type=Marker.LINE_STRIP
+
+    line_marker.pose.position.x=0
+    line_marker.pose.position.y=0
+    line_marker.pose.position.z=0
+    # q = tf_conversions.transformations.quaternion_from_euler(0,0,np.pi/2)
+    q = tf_conversions.transformations.quaternion_from_euler(0,0,0)
+    line_marker.pose.orientation.x=q[0]
+    line_marker.pose.orientation.y=q[1]
+    line_marker.pose.orientation.z=q[2]
+    line_marker.pose.orientation.w=q[3]
+
+    for num in range(0,40):
+        p=Point()
+        p.x=num
+        p.y=0
+        p.z=0
+        line_marker.points.append(p)
+
+    line_marker.color.r=1.0
+    #line_marker.color.g=1.0
+    #line_marker.color.b=1.0
+    line_marker.color.a=1.0
+    line_marker.scale.x=0.1
+    line_marker.scale.y=0.1
+    line_marker.scale.z=0.1
+
+    line_pub.publish(line_marker)
