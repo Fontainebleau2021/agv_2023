@@ -1,9 +1,0 @@
-
-<launch>
-    <node pkg="rviz" type="rviz" name="rviz_camera" args="-d $(find camera)/launch/rviz.rviz" required="true" />
-    <node pkg="rosbag" type="play" name="play_camera" output="screen" args="-l /home/agv/bag/1.bag"/>
-
-    <!-- <node pkg="rosbag" type="play" name="playe" output="screen" args="/home/agv/catkin_camera/bag/long.bag"/> -->
-
-    <node pkg="camera" type="zed_image_splitter" name="zed_image_splitter" output="screen"/> 
-</launch>
